@@ -9,8 +9,8 @@ Follow this guide to set up the development environment for the **AI-Powered Res
 Before starting, ensure you have the following installed on your machine:
 
 1. **Node.js**: v18.x or v20.x LTS ([Download Node.js](https://nodejs.org/))
-2. **Python**: v3.10 or v3.11 ([Download Python](https://www.python.org/))
-3. **MongoDB**: Local MongoDB Community Edition or MongoDB Atlas cluster URI ([Download MongoDB](https://www.mongodb.com/try/download/community))
+2. **MongoDB**: Local MongoDB Community Edition or MongoDB Atlas cluster URI ([Download MongoDB](https://www.mongodb.com/try/download/community))
+3. **Python**: v3.10 or v3.11 ([Download Python](https://www.python.org/))
 4. **Tesseract OCR**: (For Phase 6 OCR capabilities)
    - **Windows**: Install via [UB-Mannheim Tesseract Installer](https://github.com/UB-Mannheim/tesseract/wiki) and add to System PATH.
    - **Linux**: `sudo apt-get install tesseract-ocr`
@@ -19,68 +19,77 @@ Before starting, ensure you have the following installed on your machine:
 
 ---
 
-## 🛠️ Phase 1 Setup Verification
+## ⚙️ Phase 2 Database & Backend Setup
 
-### 1. Repository Structure
-Ensure your workspace matches the following:
+### 1. Backend Environment Configuration
+Navigate to the `backend/` folder and create a `.env` file based on `.env.example`:
+
 ```bash
-restaurant-expense-ai/
-├── frontend/
-├── backend/
-├── ai-service/
-├── docs/
-└── sample-data/
+cd backend
+cp .env.example .env
 ```
 
-### 2. Inspect Sample Dataset
-Navigate to `sample-data/expenses.csv` to verify the 50+ realistic restaurant expense training records.
-
----
-
-## 🚀 Environment Configuration Setup (Future Phases)
-
-### Backend Configuration (`backend/.env`)
-Copy `backend/.env.example` to `backend/.env`:
+Edit `backend/.env` to configure your MongoDB URI:
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/restaurant_expense_db
-JWT_SECRET=your_super_secret_jwt_key_change_in_production
-AI_SERVICE_URL=http://localhost:8000
+MONGODB_URI=mongodb://127.0.0.1:27017/restaurant_expense_ai
 ```
 
-### AI Service Configuration (`ai-service/.env`)
-Copy `ai-service/.env.example` to `ai-service/.env`:
-```env
-PORT=8000
-DEBUG=True
-TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
+> **Note**: For MongoDB Atlas, use your cluster connection string format in `MONGODB_URI`:  
+> `MONGODB_URI=mongodb+sandbox://<username>:<password>@cluster0.mongodb.net/restaurant_expense_ai?retryWrites=true&w=majority`
+
+### 2. Install Backend Dependencies
+```bash
+cd backend
+npm install
 ```
 
-### Frontend Configuration (`frontend/.env`)
-Copy `frontend/.env.example` to `frontend/.env`:
-```env
-VITE_API_BASE_URL=http://localhost:5000/api/v1
+### 3. Start Backend API Server
+```bash
+npm run dev
+```
+
+Expected Terminal Output on Success:
+```text
+[Database]: MongoDB connected successfully to 127.0.0.1/restaurant_expense_ai
+[Server]: Server running on port 5000 in development mode.
+```
+
+### 4. Verify Health Endpoint
+Open a web browser or run `curl`:
+```bash
+curl http://localhost:5000/health
+```
+
+Expected JSON Response:
+```json
+{
+  "status": "ok",
+  "service": "Restaurant Expense Business API",
+  "database": "connected",
+  "timestamp": "2026-09-16T03:30:00.000Z"
+}
 ```
 
 ---
 
-## 🏃 Running Services Locally (Summary for Phase 2+)
+## 🏃 Complete Local Microservices Execution (Summary for Phase 2+)
 
 ```bash
-# Terminal 1: Backend API
+# Terminal 1: Backend API (Node.js + MongoDB)
 cd backend
 npm install
 npm run dev
 
-# Terminal 2: Python AI Service
+# Terminal 2: Python AI Service (Scaffolding)
 cd ai-service
 python -m venv venv
 # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 
-# Terminal 3: React Frontend
+# Terminal 3: React Frontend (Scaffolding)
 cd frontend
 npm install
 npm run dev

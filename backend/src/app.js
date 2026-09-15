@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
+const errorHandler = require('./middleware/error.middleware');
 
 const app = express();
 
@@ -14,20 +16,24 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check route
 app.get('/health', (req, res) => {
+  const dbStates = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+
+  const dbStateCode = mongoose.connection ? mongoose.connection.readyState : 0;
+
   res.status(200).json({
-    status: 'OK',
+    status: 'ok',
     service: 'Restaurant Expense Business API',
+    database: dbStates[dbStateCode] || 'unknown',
     timestamp: new Date().toISOString()
   });
 });
 
-// Centralized Error Handling Middleware (Placeholder)
-app.use((err, req, res, next) => {
-  console.error('[Global Error Handler]:', err.stack);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Internal Server Error'
-  });
-});
+// Centralized Error Handling Middleware
+app.use(errorHandler);
 
 module.exports = app;

@@ -146,11 +146,11 @@ restaurant-expense-ai/
 │   └── package.json
 ├── backend/              # Node.js + Express Core Business API
 │   ├── src/
-│   │   ├── config/       # Database & environment configurations
-│   │   ├── controllers/  # API endpoint handlers
-│   │   ├── middleware/   # Auth, validation & file upload middleware
+│   │   ├── config/       # Database config (db.js) & environment
+│   │   ├── controllers/  # API endpoint handlers (Phase 3+)
+│   │   ├── middleware/   # Auth, error & upload middleware
 │   │   ├── models/       # Mongoose Schemas (User, Expense, Document, etc.)
-│   │   ├── routes/       # Express route handlers
+│   │   ├── routes/       # Express route handlers (Phase 3+)
 │   │   ├── services/     # Business logic & AI service client calls
 │   │   └── validators/   # Request payload validation schemas
 │   └── package.json
@@ -172,8 +172,14 @@ restaurant-expense-ai/
 
 ## 🚀 Implementation Roadmap Status
 
-* [x] **PHASE 1: Project Architecture and Scaffolding** `[IMPLEMENTED]`
-* [ ] **PHASE 2: MongoDB + Backend Foundation** `[PLANNED]`
+* [x] **PHASE 1: Project Architecture and Scaffolding** `[COMPLETED]`
+* [x] **PHASE 2: MongoDB + Backend Foundation** `[COMPLETED]`
+  - MongoDB connection module via Mongoose (`src/config/db.js`)
+  - Environment configuration (`.env.example` with `MONGODB_URI`)
+  - Async backend startup sequence (Database connect ➔ Express server start)
+  - Database connection error handling and safe logging
+  - Enhanced Health check endpoint (`/health` returns DB connection status)
+  - Centralized Express error middleware (`src/middleware/error.middleware.js`)
 * [ ] **PHASE 3: Expense CRUD** `[PLANNED]`
 * [ ] **PHASE 4: Authentication and Authorization** `[PLANNED]`
 * [ ] **PHASE 5: Document Upload** `[PLANNED]`
@@ -191,7 +197,7 @@ restaurant-expense-ai/
 
 ---
 
-## 💻 Local Setup (Phase 1 Scaffolding)
+## 💻 Local Setup
 
 See [`docs/setup.md`](docs/setup.md) for full local environment setup instructions.
 
@@ -200,8 +206,11 @@ See [`docs/setup.md`](docs/setup.md) for full local environment setup instructio
 git clone https://github.com/your-username/restaurant-expense-ai.git
 cd restaurant-expense-ai
 
-# 2. Explore documentation
-cd docs/
+# 2. Setup Backend & MongoDB
+cd backend
+npm install
+cp .env.example .env
+npm run dev
 ```
 
 ---
