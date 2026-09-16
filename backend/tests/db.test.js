@@ -29,4 +29,8 @@ describe('Phase 2 Database & Foundation Tests', () => {
 
     process.env.MONGODB_URI = originalUri;
   }, 10000);
+
+  afterAll(async () => {
+    await mongoose.disconnect();
+  });
 });
