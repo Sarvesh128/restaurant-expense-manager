@@ -180,8 +180,15 @@ restaurant-expense-ai/
   - Database connection error handling and safe logging
   - Enhanced Health check endpoint (`/health` returns DB connection status)
   - Centralized Express error middleware (`src/middleware/error.middleware.js`)
-* [ ] **PHASE 3: Expense CRUD** `[PLANNED]`
-* [ ] **PHASE 4: Authentication and Authorization** `[PLANNED]`
+* [x] **PHASE 3: Core Data Models & Authentication System** `[COMPLETED]`
+  - Core Mongoose schemas: `User`, `Restaurant`, `Category`, `Expense`
+  - JWT generation and verification utility (`src/utils/jwt.js`)
+  - User registration (`POST /api/v1/auth/register`) with input validation and bcrypt password hashing
+  - User login (`POST /api/v1/auth/login`) with credential verification and JWT generation
+  - Protected user profile endpoint (`GET /api/v1/auth/me`)
+  - Role-based authorization middleware (`src/middleware/role.middleware.js`)
+  - Comprehensive unit and integration test suite (`npm test`)
+* [ ] **PHASE 4: Expense CRUD** `[PLANNED]`
 * [ ] **PHASE 5: Document Upload** `[PLANNED]`
 * [ ] **PHASE 6: OCR Engine Integration** `[PLANNED]`
 * [ ] **PHASE 7: Information Extraction** `[PLANNED]`

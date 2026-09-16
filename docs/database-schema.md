@@ -59,6 +59,7 @@ Stores restaurant business profiles.
   address: String,
   phone: String,
   taxNumber: String,      // GSTIN / FSSAI number
+  ownerId: ObjectId,      // Ref: User
   createdAt: Date,
   updatedAt: Date
 }
@@ -66,7 +67,24 @@ Stores restaurant business profiles.
 
 ---
 
-### 3. Expense Model (`expenses`)
+### 3. Category Model (`categories`)
+Stores standard and custom expense classification categories.
+
+```javascript
+{
+  _id: ObjectId,
+  name: String,           // Required (e.g. 'Raw Materials', 'Utilities', 'Salaries')
+  description: String,
+  restaurantId: ObjectId, // Ref: Restaurant (null for system defaults)
+  isDefault: Boolean,     // Default: false
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+---
+
+### 4. Expense Model (`expenses`)
 The primary authoritative transaction ledger.
 
 ```javascript
@@ -97,7 +115,7 @@ The primary authoritative transaction ledger.
 
 ---
 
-### 4. Document Model (`documents`)
+### 5. Document Model (`documents`)
 Metadata tracking uploaded invoice scans, receipts, and bills.
 
 ```javascript
@@ -119,7 +137,7 @@ Metadata tracking uploaded invoice scans, receipts, and bills.
 
 ---
 
-### 5. AIProcessingResult Model (`aiprocessingresults`)
+### 6. AIProcessingResult Model (`aiprocessingresults`)
 Audit log storing raw AI outputs, OCR text, and model scores.
 
 ```javascript
@@ -153,7 +171,7 @@ Audit log storing raw AI outputs, OCR text, and model scores.
 
 ---
 
-### 6. Reconciliation Model (`reconciliations`)
+### 7. Reconciliation Model (`reconciliations`)
 Tracks verification audit results between source documents and recorded database expenses.
 
 ```javascript

@@ -36,6 +36,48 @@ All request payload and response formats utilize `application/json` (except docu
     "password": "SecurePassword123!"
   }
   ```
+* **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "token": "JWT_BEARER_TOKEN",
+    "user": {
+      "id": "6500a1b2c3...",
+      "name": "Admin User",
+      "email": "admin@bistro.com",
+      "role": "ADMIN",
+      "restaurantId": "6500a1b2c2..."
+    }
+  }
+  ```
+
+### `GET /api/v1/auth/me`
+* **Description**: Retrieve currently authenticated user profile.
+* **Headers**: `Authorization: Bearer <JWT_TOKEN>`
+* **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "user": {
+      "id": "6500a1b2c3...",
+      "name": "Admin User",
+      "email": "admin@bistro.com",
+      "role": "ADMIN",
+      "restaurantId": {
+        "id": "6500a1b2c2...",
+        "name": "Gourmet Bistro",
+        "currency": "INR"
+      }
+    }
+  }
+  ```
+* **Error Response (401 Unauthorized)**:
+  ```json
+  {
+    "success": false,
+    "message": "Access denied. No authentication token provided."
+  }
+  ```
 
 ---
 

@@ -29,15 +29,19 @@ cd backend
 cp .env.example .env
 ```
 
-Edit `backend/.env` to configure your MongoDB URI:
+Edit `backend/.env` to configure your MongoDB URI and JWT configuration:
 ```env
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb://127.0.0.1:27017/restaurant_expense_ai
+
+# Phase 3 Authentication
+JWT_SECRET=your_jwt_secret_key_change_in_production
+JWT_EXPIRES_IN=7d
 ```
 
 > **Note**: For MongoDB Atlas, use your cluster connection string format in `MONGODB_URI`:  
-> `MONGODB_URI=mongodb+sandbox://<username>:<password>@cluster0.mongodb.net/restaurant_expense_ai?retryWrites=true&w=majority`
+> `MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/restaurant_expense_ai?retryWrites=true&w=majority`
 
 ### 2. Install Backend Dependencies
 ```bash
@@ -70,6 +74,12 @@ Expected JSON Response:
   "database": "connected",
   "timestamp": "2026-09-16T03:30:00.000Z"
 }
+```
+
+### 5. Run Automated Tests
+```bash
+cd backend
+npm test
 ```
 
 ---
