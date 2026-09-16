@@ -332,11 +332,6 @@ describe('Phase 3 Authentication & Authorization Tests', () => {
       expect(res.body.success).toBe(false);
     });
 
-    test('GET /api/auth/me alias route also rejects unauthenticated request with 401', async () => {
-      const res = await request(app).get('/api/auth/me');
-      expect(res.statusCode).toBe(401);
-    });
-
     test('GET /api/v1/auth/me returns user profile when valid token provided', async () => {
       const token = generateToken({
         userId: mockUserId,

@@ -59,11 +59,6 @@ const expenseSchema = new mongoose.Schema(
       },
       index: true
     },
-    categoryId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
-      default: null
-    },
     subcategory: {
       type: String,
       trim: true,
@@ -155,11 +150,6 @@ const expenseSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: ''
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: null
     }
   },
   {
