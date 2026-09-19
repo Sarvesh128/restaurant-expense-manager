@@ -188,7 +188,14 @@ restaurant-expense-ai/
   - Protected user profile endpoint (`GET /api/v1/auth/me`)
   - Role-based authorization middleware (`src/middleware/role.middleware.js`)
   - Comprehensive unit and integration test suite (`npm test`)
-* [ ] **PHASE 4: Expense CRUD** `[PLANNED]`
+* [x] **PHASE 4: Expense CRUD & Deterministic Query Engine** `[COMPLETED]`
+  - Validated Expense CRUD controllers and routes (`POST`, `GET`, `PUT`, `DELETE /api/v1/expenses`)
+  - Strict tenant isolation enforced by authenticated user's `restaurantId`
+  - Input validation schemas preventing empty updates, invalid categories, and negative amounts
+  - Deterministic MongoDB query engine with date bounds, amount bounds, vendor regex, category, status filters, and pagination
+  - Metadata endpoint (`GET /api/v1/expenses/meta/categories`) reusing single source of truth
+  - Deterministic financial summary aggregation (`GET /api/v1/expenses/meta/summary`)
+  - 24 comprehensive unit and integration tests (69 total backend tests passing)
 * [ ] **PHASE 5: Document Upload** `[PLANNED]`
 * [ ] **PHASE 6: OCR Engine Integration** `[PLANNED]`
 * [ ] **PHASE 7: Information Extraction** `[PLANNED]`

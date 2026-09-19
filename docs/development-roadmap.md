@@ -56,11 +56,13 @@ This document provides a comprehensive tracking list for all **16 Implementation
 
 ---
 
-### ⏳ PHASE 4: Expense CRUD `[NEXT UP]`
-* Implement CRUD controllers and routes for Expenses (`POST`, `GET`, `PUT`, `DELETE`).
-* Add input validation (payload and category checks).
-* Implement deterministic MongoDB aggregations for expense listing, date filtering, and category sorting.
-* Secure all expense endpoints with JWT authentication middleware.
+### ✅ PHASE 4: Expense CRUD & Deterministic Query Engine `[COMPLETED]`
+* Implement CRUD controllers and routes for Expenses (`POST`, `GET`, `PUT`, `DELETE /api/v1/expenses`).
+* Add input validation (payload, amount > 0, valid category, payment method, date formatting, partial updates).
+* Implement deterministic MongoDB aggregations for expense listing, date filtering, search, and category sorting.
+* Secure all expense endpoints with JWT authentication middleware and strict restaurant tenant isolation.
+* Implement metadata endpoint (`GET /api/v1/expenses/meta/categories`) and deterministic financial summary (`GET /api/v1/expenses/meta/summary`).
+* 24 automated unit and integration tests covering CRUD, isolation, validation, query engine, and financial aggregations (69 total backend tests passing).
 
 ---
 

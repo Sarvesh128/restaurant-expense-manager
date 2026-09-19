@@ -35,7 +35,10 @@ app.get('/health', (req, res) => {
 
 // Canonical API Routes
 const authRoutes = require('./routes/auth.routes');
+const expenseRoutes = require('./routes/expense.routes');
+
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/expenses', expenseRoutes);
 
 // Centralized Error Handling Middleware
 app.use(errorHandler);
