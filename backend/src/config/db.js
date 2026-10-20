@@ -6,12 +6,19 @@ const mongoose = require('mongoose');
  */
 const connectDB = async () => {
   try {
-    const connString = process.env.MONGODB_URI;
-    if (!connString) {
+    const rawConnString = process.env.MONGODB_URI;
+    if (!rawConnString) {
       throw new Error('MONGODB_URI environment variable is not defined.');
     }
 
-    const conn = await mongoose.connect(connString);
+    const connString = rawConnString.trim();
+
+    const options = {};
+    if (!connString.includes('serverSelectionTimeoutMS=')) {
+      options.serverSelectionTimeoutMS = 5000;
+    }
+
+    const conn = await mongoose.connect(connString, options);
 
     // Mask sensitive info (host name / IP only, no passwords or credentials)
     const host = conn.connection.host || 'unknown-host';
@@ -26,3 +33,4 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
+

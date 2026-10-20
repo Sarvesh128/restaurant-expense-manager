@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Restaurant = require('../models/Restaurant');
 const { generateToken } = require('../utils/jwt');
+const inMemoryStore = require('./inMemoryStore');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const BCRYPT_SALT_ROUNDS = 10;
@@ -28,6 +29,10 @@ class AppError extends Error {
  * @returns {Promise<{ success: boolean, token: string, user: Object }>}
  */
 const register = async ({ name, email, password, restaurantName, role }) => {
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.registerUser({ name, email, password, restaurantName, role });
+  }
+
   // 1. Input presence validation
   if (!name || !name.trim()) {
     throw new AppError('User name is required.', 400);
@@ -110,6 +115,10 @@ const register = async ({ name, email, password, restaurantName, role }) => {
  * @returns {Promise<{ success: boolean, token: string, user: Object }>}
  */
 const login = async ({ email, password }) => {
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.loginUser({ email, password });
+  }
+
   // 1. Validate inputs
   if (!email || !email.trim()) {
     throw new AppError('Email is required for login.', 400);
@@ -166,6 +175,10 @@ const login = async ({ email, password }) => {
  * @returns {Promise<{ success: boolean, user: Object }>}
  */
 const getCurrentUser = async (userId) => {
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.getCurrentUser(userId);
+  }
+
   if (!userId) {
     throw new AppError('User ID is required.', 400);
   }

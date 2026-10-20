@@ -116,24 +116,35 @@ The primary authoritative transaction ledger.
 ---
 
 ### 5. Document Model (`documents`)
-Metadata tracking uploaded invoice scans, receipts, and bills.
+Metadata tracking uploaded invoice scans, receipts, and bills (Phase 5 Ingestion Foundation).
 
 ```javascript
 {
   _id: ObjectId,
-  restaurantId: ObjectId,     // Ref: Restaurant
-  uploadedBy: ObjectId,       // Ref: User
-  originalFileName: String,
-  storedFileName: String,     // Unique file path on storage
-  mimeType: String,           // 'image/jpeg', 'image/png', 'application/pdf'
-  fileSizeBytes: Number,
-  fileHash: String,           // SHA-256 hash for duplicate check
-  processingStatus: String,   // Enum: ['UPLOADED', 'PROCESSING', 'COMPLETED', 'FAILED']
-  errorMessage: String,
-  createdAt: Date,
+  restaurantId: ObjectId,     // Ref: Restaurant, Indexed (Tenant isolation)
+  uploadedBy: ObjectId,       // Ref: User, Indexed (Uploader audit trail)
+  originalFileName: String,   // Sanitized client filename (metadata only)
+  storedFileName: String,     // Unpredictable server-generated filename (doc_<timestamp>_<hex>.<ext>)
+  mimeType: String,           // Enum: ['application/pdf', 'image/jpeg', 'image/png']
+  fileSizeBytes: Number,      // Strictly positive file size in bytes (max 10 MiB)
+  fileHash: String,           // SHA-256 cryptographic digest for audit tracking
+  storageKey: String,         // Relative storage path ('documents/<storedFileName>')
+  processingStatus: String,   // Enum: ['UPLOADED', 'PROCESSING', 'COMPLETED', 'FAILED'], Default: 'UPLOADED'
+  errorMessage: String,       // Error diagnostics if later extraction fails
+  createdAt: Date,            // Timestamps
   updatedAt: Date
 }
 ```
+
+* **Indexes**:
+  * `{ restaurantId: 1 }`: Fast tenant filtering.
+  * `{ uploadedBy: 1 }`: Uploader audit lookups.
+  * `{ restaurantId: 1, createdAt: -1 }`: Compound index for paginated reverse-chronological listings.
+* **Virtual Aliases**:
+  * `originalName` ➔ maps to `originalFileName`
+  * `storedFilename` ➔ maps to `storedFileName`
+  * `size` ➔ maps to `fileSizeBytes`
+  * `status` ➔ maps to `processingStatus`
 
 ---
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Expense = require('../models/Expense');
+const inMemoryStore = require('./inMemoryStore');
 
 /**
  * Custom application error with HTTP status code.
@@ -47,6 +48,10 @@ const extractRestaurantId = (user) => {
 const createExpense = async (data, user) => {
   const restaurantId = extractRestaurantId(user);
 
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.createExpense(data, user);
+  }
+
   const expenseData = {
     restaurantId,
     description: data.description.trim(),
@@ -85,6 +90,10 @@ const createExpense = async (data, user) => {
  */
 const getExpenses = async (queryParams = {}, user) => {
   const restaurantId = extractRestaurantId(user);
+
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.getExpenses(queryParams, user);
+  }
 
   const {
     page = 1,
@@ -221,6 +230,10 @@ const getExpenses = async (queryParams = {}, user) => {
 const getExpenseById = async (id, user) => {
   const restaurantId = extractRestaurantId(user);
 
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.getExpenseById(id, user);
+  }
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError('Invalid expense ID format.', 400);
   }
@@ -250,6 +263,10 @@ const getExpenseById = async (id, user) => {
  */
 const updateExpense = async (id, updateData = {}, user) => {
   const restaurantId = extractRestaurantId(user);
+
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.updateExpense(id, updateData, user);
+  }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError('Invalid expense ID format.', 400);
@@ -336,6 +353,10 @@ const updateExpense = async (id, updateData = {}, user) => {
 const deleteExpense = async (id, user) => {
   const restaurantId = extractRestaurantId(user);
 
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.deleteExpense(id, user);
+  }
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError('Invalid expense ID format.', 400);
   }
@@ -385,6 +406,11 @@ const getExpenseMetadata = () => {
  */
 const getExpenseSummary = async (queryParams = {}, user) => {
   const restaurantId = extractRestaurantId(user);
+
+  if (global.DEV_FALLBACK_MODE) {
+    return inMemoryStore.getExpenseSummary(queryParams, user);
+  }
+
   const { startDate, endDate, category } = queryParams;
 
   const matchStage = {

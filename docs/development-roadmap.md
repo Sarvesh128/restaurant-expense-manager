@@ -66,10 +66,18 @@ This document provides a comprehensive tracking list for all **16 Implementation
 
 ---
 
-### ⏳ PHASE 5: Document Upload
-* Implement Multer middleware for secure invoice upload handling.
-* Validate mime-types (JPEG, PNG, PDF) and size restrictions (Max 10MB).
-* Save metadata into `Document` collection in MongoDB.
+### ✅ PHASE 5: Document Upload [COMPLETED]
+* Implement Multer middleware (`src/middleware/upload.middleware.js`) for secure invoice and receipt upload handling.
+* Validate MIME types (JPEG, PNG, PDF), extensions, and strict size restrictions (Max 10MB).
+* Verify file magic bytes (`%PDF`, `FF D8 FF`, `89 50 4E 47`) on disk to reject spoofed/disguised binaries.
+* Enforce server-controlled unpredictable filenames (`doc_<timestamp>_<hex>.<ext>`) to prevent directory traversal.
+* Persist document metadata in MongoDB (`src/models/Document.js`) with audit hashes (SHA-256) and lifecycle status (`UPLOADED`).
+* Implement canonical Express routes (`POST`, `GET /api/v1/documents`, `GET /api/v1/documents/:id`, `GET /api/v1/documents/:id/download`).
+* Enforce restaurant tenant isolation, preventing cross-tenant document access or query tampering.
+* Remove public static directory exposure of `/uploads`, restricting document access to authenticated downloads.
+* Ensure database consistency: in-memory fallback rejected for uploads (503) and orphaned files unlinked on failure.
+* 29 automated unit and integration tests (98 total backend tests passing).
+* Strict phase boundary maintained: OCR, text extraction, and ML classification deferred to Phase 6+.
 
 ---
 

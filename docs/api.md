@@ -198,32 +198,158 @@ All request payload and response formats utilize `application/json` (except docu
 
 ---
 
-## 3. Document Processing Endpoints
+## 3. Document Management Endpoints (Phase 5 Ingestion Foundation)
 
-### `POST /api/v1/documents/upload`
-* **Description**: Upload invoice image/PDF for OCR & AI pipeline processing.
-* **Content-Type**: `multipart/form-data`
-* **Form Field**: `file` (Binary Image/PDF file)
-* **Response (200 OK)**:
+All document endpoints operate under `/api/v1/documents`, enforce JWT authentication, and guarantee strict restaurant tenant isolation.
+
+> **Phase Boundary Note**: Document endpoints in Phase 5 represent the secure ingestion and persistent storage foundation. Uploading a document safely stores the file and persists its metadata with initial status `UPLOADED`. OCR extraction, ML parsing, and expense generation are deferred to later phases.
+
+### `POST /api/v1/documents`
+* **Description**: Securely upload an invoice scan, receipt image, or PDF document.
+* **Headers**:
+  * `Authorization: Bearer <JWT_TOKEN>`
+  * `Content-Type: multipart/form-data`
+* **Form Field**:
+  * `file`: Binary file payload (single file per request).
+* **Validation Rules**:
+  * Allowed media types: `application/pdf`, `image/jpeg`, `image/png`.
+  * Allowed file extensions: `.pdf`, `.jpeg`, `.jpg`, `.png`.
+  * Maximum file size: **10 MiB** (10,485,760 bytes).
+  * Magic byte verification: Validates file headers on disk (`%PDF`, `FF D8 FF`, `89 50 4E 47`) to reject disguised/spoofed executables.
+  * Server-controlled storage: Stored with randomized, unpredictable filename (`doc_<timestamp>_<hex>.<ext>`). Client filenames are never used for disk paths.
+  * Tenant derivation: `restaurantId` and `uploadedBy` are strictly derived from the authenticated token; client-supplied ownership fields are rejected.
+* **Success Response (201 Created)**:
   ```json
   {
     "success": true,
-    "documentId": "6500a1b2c3...",
-    "processingResult": {
-      "vendor": "Fresh Veggies Wholesale",
-      "invoiceNumber": "INV-2026-089",
-      "date": "2026-09-14",
-      "totalAmount": 2500,
-      "predictedCategory": "Raw Materials",
-      "categoryConfidence": 0.94,
-      "isAnomaly": false,
-      "duplicateMatchId": null
+    "document": {
+      "id": "6ace9d08b36bb023970aa874",
+      "restaurantId": "6500a1b2c2...",
+      "uploadedBy": "6500a1b2c3...",
+      "originalName": "supplier_invoice_sep2026.pdf",
+      "storedFilename": "doc_1791925512174_38b206581ee9eecc1113b979b62cf007.pdf",
+      "mimeType": "application/pdf",
+      "size": 45120,
+      "fileHash": "e420087c819bac159fd00c16d40c174e326be1e384c9ad576f06c495ef7ca3b5",
+      "storageKey": "documents/doc_1791925512174_38b206581ee9eecc1113b979b62cf007.pdf",
+      "status": "UPLOADED",
+      "createdAt": "2026-10-14T02:35:12.174Z",
+      "updatedAt": "2026-10-14T02:35:12.174Z"
+    }
+  }
+  ```
+* **Error Responses**:
+  * `400 Bad Request` (Missing file):
+    ```json
+    {
+      "success": false,
+      "message": "No file uploaded. Please attach a file under the multipart form-data field \"file\"."
+    }
+    ```
+  * `400 Bad Request` (Invalid type / Spoofed signature / Oversized):
+    ```json
+    {
+      "success": false,
+      "message": "Invalid file type 'application/zip' with extension '.zip'. Only PDF, JPEG, and PNG files under 10MB are permitted."
+    }
+    ```
+  * `401 Unauthorized` (Missing or invalid token).
+  * `403 Forbidden` (User is not associated with any authorized restaurant).
+  * `503 Service Unavailable` (Persistent MongoDB storage unavailable / in-memory fallback active).
+
+---
+
+### `GET /api/v1/documents`
+* **Description**: Retrieve paginated list of uploaded documents scoped strictly to the authenticated user's restaurant.
+* **Headers**: `Authorization: Bearer <JWT_TOKEN>`
+* **Query Parameters**:
+  * `page`: Integer >= 1 (Default: `1`).
+  * `limit`: Integer between 1 and 100 (Default: `10`).
+  * `status`: Filter by processing status (`UPLOADED`, `PROCESSING`, `COMPLETED`, `FAILED`).
+  * `mimeType`: Filter by MIME type (`application/pdf`, `image/jpeg`, `image/png`).
+  * `sortBy`: Sort field (`createdAt`, `originalFileName`, `fileSizeBytes`, `mimeType`, `processingStatus`) (Default: `createdAt`).
+  * `sortOrder`: `asc` or `desc` (Default: `desc`).
+* **Success Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "documents": [
+      {
+        "id": "6ace9d08b36bb023970aa874",
+        "restaurantId": "6500a1b2c2...",
+        "uploadedBy": "6500a1b2c3...",
+        "originalName": "supplier_invoice_sep2026.pdf",
+        "storedFilename": "doc_1791925512174_38b206581ee9eecc1113b979b62cf007.pdf",
+        "mimeType": "application/pdf",
+        "size": 45120,
+        "fileHash": "e420087c819bac159fd00c16d40c174e326be1e384c9ad576f06c495ef7ca3b5",
+        "storageKey": "documents/doc_1791925512174_38b206581ee9eecc1113b979b62cf007.pdf",
+        "status": "UPLOADED",
+        "createdAt": "2026-10-14T02:35:12.174Z",
+        "updatedAt": "2026-10-14T02:35:12.174Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "totalCount": 1,
+      "totalPages": 1,
+      "hasNextPage": false,
+      "hasPrevPage": false
     }
   }
   ```
 
+---
+
 ### `GET /api/v1/documents/:id`
-* **Description**: Retrieve document processing details and raw OCR output.
+* **Description**: Retrieve metadata for a single uploaded document by ID.
+* **Headers**: `Authorization: Bearer <JWT_TOKEN>`
+* **Success Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "document": {
+      "id": "6ace9d08b36bb023970aa874",
+      "restaurantId": "6500a1b2c2...",
+      "uploadedBy": "6500a1b2c3...",
+      "originalName": "supplier_invoice_sep2026.pdf",
+      "storedFilename": "doc_1791925512174_38b206581ee9eecc1113b979b62cf007.pdf",
+      "mimeType": "application/pdf",
+      "size": 45120,
+      "fileHash": "e420087c819bac159fd00c16d40c174e326be1e384c9ad576f06c495ef7ca3b5",
+      "storageKey": "documents/doc_1791925512174_38b206581ee9eecc1113b979b62cf007.pdf",
+      "status": "UPLOADED",
+      "createdAt": "2026-10-14T02:35:12.174Z",
+      "updatedAt": "2026-10-14T02:35:12.174Z"
+    }
+  }
+  ```
+* **Error Response (404 Not Found)**:
+  ```json
+  {
+    "success": false,
+    "message": "Document not found."
+  }
+  ```
+  *(Returned identically for nonexistent records and cross-restaurant unauthorized access attempts without data leakage).*
+
+---
+
+### `GET /api/v1/documents/:id/download`
+* **Description**: Securely download the original binary document file.
+* **Headers**: `Authorization: Bearer <JWT_TOKEN>`
+* **Security & Behavior**:
+  * Enforces restaurant tenant ownership before locating file.
+  * Resolves stored file from server-controlled storage identifier (`storedFileName`).
+  * Enforces strict path containment preventing directory traversal.
+  * Upload directory is NOT exposed publicly (`/uploads` static routing is disabled).
+  * Returns original filename in `Content-Disposition` attachment header.
+* **Success Response (200 OK)**:
+  * Headers:
+    * `Content-Disposition: attachment; filename="supplier_invoice_sep2026.pdf"`
+    * `Content-Type: application/pdf` (or `image/jpeg`, `image/png`)
+  * Body: Binary stream.
 
 ---
 

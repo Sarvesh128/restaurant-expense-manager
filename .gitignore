@@ -31,8 +31,8 @@ ai-service/models/*.joblib
 ai-service/models/*.pkl
 
 # Uploaded User Documents & Media
-backend/uploads/*
-!backend/uploads/.gitkeep
+backend/uploads/
+!backend/uploads/.gitkeep 
 
 # Environment variables & secrets
 .env

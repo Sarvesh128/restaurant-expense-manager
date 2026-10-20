@@ -196,7 +196,16 @@ restaurant-expense-ai/
   - Metadata endpoint (`GET /api/v1/expenses/meta/categories`) reusing single source of truth
   - Deterministic financial summary aggregation (`GET /api/v1/expenses/meta/summary`)
   - 24 comprehensive unit and integration tests (69 total backend tests passing)
-* [ ] **PHASE 5: Document Upload** `[PLANNED]`
+* [x] **PHASE 5: Document Upload** `[COMPLETED]`
+  - Secure single-document upload (`POST /api/v1/documents`) via Multer under form field `file`
+  - File validation supporting PDF, JPEG, and PNG up to 10 MiB with magic byte signature verification to block spoofed files
+  - Unpredictable server-controlled storage filenames (`doc_<timestamp>_<hex>.<ext>`) preventing path traversal and client filename trust
+  - Persistent MongoDB `Document` model with restaurant & uploader references, audit hashes, and lifecycle status (`UPLOADED`)
+  - Authenticated and strictly tenant-isolated endpoints: upload, paginated list, metadata retrieval, and secure binary download
+  - Public static exposure of `/uploads` disabled; access strictly guarded by JWT authorization
+  - Atomic cleanup of disk files on validation rejection or database persistence failure
+  - 29 automated unit and integration tests (98 total backend tests passing across 6 suites)
+  - *Strict boundary observed: OCR, extraction, and ML processing deferred to Phase 6+*
 * [ ] **PHASE 6: OCR Engine Integration** `[PLANNED]`
 * [ ] **PHASE 7: Information Extraction** `[PLANNED]`
 * [ ] **PHASE 8: ML Expense Classification** `[PLANNED]`

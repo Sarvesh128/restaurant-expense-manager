@@ -10,10 +10,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Serve static upload files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 // Health check route
 app.get('/health', (req, res) => {
   const dbStates = {
@@ -24,11 +20,15 @@ app.get('/health', (req, res) => {
   };
 
   const dbStateCode = mongoose.connection ? mongoose.connection.readyState : 0;
+  let dbStatus = dbStates[dbStateCode] || 'unknown';
+  if (global.DEV_FALLBACK_MODE) {
+    dbStatus = 'connected (in-memory dev engine)';
+  }
 
   res.status(200).json({
     status: 'ok',
     service: 'Restaurant Expense Business API',
-    database: dbStates[dbStateCode] || 'unknown',
+    database: dbStatus,
     timestamp: new Date().toISOString()
   });
 });
@@ -36,9 +36,11 @@ app.get('/health', (req, res) => {
 // Canonical API Routes
 const authRoutes = require('./routes/auth.routes');
 const expenseRoutes = require('./routes/expense.routes');
+const documentRoutes = require('./routes/document.routes');
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/expenses', expenseRoutes);
+app.use('/api/v1/documents', documentRoutes);
 
 // Centralized Error Handling Middleware
 app.use(errorHandler);

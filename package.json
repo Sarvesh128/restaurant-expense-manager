@@ -1,0 +1,16 @@
+{
+  "name": "restaurant-expense-ai",
+  "version": "1.0.0",
+  "description": "AI-Powered Restaurant Expense Management & Reconciliation System",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm --prefix backend start\" \"npm --prefix frontend dev\"",
+    "dev": "concurrently \"npm --prefix backend dev\" \"npm --prefix frontend dev\"",
+    "backend": "npm --prefix backend dev",
+    "frontend": "npm --prefix frontend dev",
+    "test": "npm --prefix backend test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
